@@ -317,11 +317,17 @@
 
 - (void)invalidate {
     if (_vroView) {
-        // pause the view before removing it.
         VROViewAR *viewAR = (VROViewAR *)_vroView;
+        // Get the ARSession from the VROViewAR
+        std::shared_ptr<VROARSession> arSession = [viewAR getARSession];
+        if (arSession) {
+            // Explicitly pause the AR session to satisfy ARKit's requirement.
+            arSession->pause();
+        }
+        // Also mark the view as paused.
         [viewAR setPaused:YES];
     }
-    //NOTE: DO NOT NULL OUT _currentViews here, that will cause a memory leak and prevent child views from being released.
+    // NOTE: DO NOT null out _currentViews here, as that may cause memory leaks.
     _currentScene = nil;
     _vroView = nil;
     _childViews = nil;
